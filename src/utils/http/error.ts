@@ -2,7 +2,6 @@ import axios from 'axios'
 import { message } from '@/utils/feedback'
 import pinia from '@/stores'
 import { useUserStore } from '@/stores/modules/user'
-import { usePermissionStore } from '@/stores/modules/permission'
 import router from '@/router'
 
 const HTTP_STATUS_MESSAGES: Record<number, string> = {
@@ -35,9 +34,7 @@ function handleUnauthorized() {
   isRelogging = true
 
   const userStore = useUserStore(pinia)
-  const permissionStore = usePermissionStore(pinia)
   userStore.resetToken()
-  permissionStore.resetRoutes()
   message.error('登录已过期，请重新登录')
   router.push('/error?status=401').finally(() => {
     isRelogging = false
