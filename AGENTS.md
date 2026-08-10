@@ -2,7 +2,7 @@
 
 ## 技术栈
 
-Vue 3（TypeScript）+ Vite 8 + Pinia 3 + Vue Router 5 + Element Plus 2 + Tailwind CSS 4 + SCSS + @tanstack/vue-query。
+Vue 3（TypeScript）+ Vite 8 + Pinia 4 + Vue Router 5 + Vant 4 + Tailwind CSS 4 + SCSS + @tanstack/vue-query。
 
 ## 命令
 
@@ -10,7 +10,7 @@ Vue 3（TypeScript）+ Vite 8 + Pinia 3 + Vue Router 5 + Element Plus 2 + Tailwi
 pnpm dev           # 开发服务器
 pnpm build         # 生产构建 → dist/
 pnpm preview       # 预览生产构建
-pnpm lint          # ESLint 检查 .vue/.js 文件
+pnpm lint          # ESLint 检查
 pnpm typecheck     # vue-tsc 类型检查
 ```
 
@@ -20,24 +20,26 @@ pnpm typecheck     # vue-tsc 类型检查
 
 ### 验证
 
-代码编写完成后必须同时通过 `pnpm lint` 和 `pnpm typecheck`。两者职责不同：`lint` 管风格和语法，`typecheck` 管类型推断（编辑器红色报错靠 typecheck 捕获）。
+代码编写完成后必须同时通过 `pnpm lint` 和 `pnpm typecheck`。`lint` 管风格和语法，`typecheck` 管类型推断。
 
 ### 优先使用成熟的第三方包
 
-在编写自定义代码前，先检查是否有维护良好的社区包已解决该问题（日期→`dayjs`、工具函数→`@vueuse/core`、图表→`echarts`、拖拽→`vuedraggable`、Excel→`xlsx`、富文本→`md-editor-v3`）。不要从零构建事件总线、防抖/节流、剪贴板、全屏、暗色模式切换或 localStorage 封装——`@vueuse/core` 已覆盖。可先查阅其目录。
+在编写自定义代码前，先检查是否有维护良好的社区包已解决该问题（日期→`dayjs`、工具函数→`@vueuse/core`）。不要从零构建事件总线、防抖/节流、剪贴板、全屏、暗色模式切换或 localStorage 封装——`@vueuse/core` 已覆盖。
 
 ### 路径别名
 
-`@` → `src/`（在 `vite.config.ts` 和 `jsconfig.json` 中均已配置）。
+`@` → `src/`（在 `vite.config.ts` 和 `tsconfig.json` 中均已配置）。
 
 ## 架构
 
-### 自动导入
+### Vant 4 组件
 
-- Element Plus API（`ElMessage`、`ElLoading`）自动注入，无需手动导入。
-- Element Plus 组件自动导入，直接使用 `<el-button>` 等标签。
-- 图标组件前缀 `Icon`（如 `<IconEpUser />`），无需手动注册。
-- **注意**：`vue`、`vue-router`、`pinia` 的自动导入已禁用，必须显式 `import`。
+使用 `@vant/auto-import-resolver` 自动导入 Vant 组件及 API：
+
+- 组件直接使用 `<van-button>` 等标签，无需手动注册。
+- API（`showToast`、`showDialog`、`showNotify` 等）自动注入，无需手动导入。
+
+**注意**：`vue`、`vue-router`、`pinia` 的自动导入已禁用，必须显式 `import`。
 
 ### Store 规范
 
@@ -46,21 +48,15 @@ pnpm typecheck     # vue-tsc 类型检查
 
 ### Token 存储
 
-Token 和用户状态通过 `pinia-plugin-persistedstate` 持久化，key 使用 `src/utils/storage.ts` 的 `storageKey()` 辅助函数（`import.meta.env.BASE_URL` + store id）。每个 store 的 `persist` 配置控制持久化哪些 ref。
+Token 和用户状态通过 `pinia-plugin-persistedstate` 持久化，key 前缀由 `src/stores/index.ts` 中的 `storageKey()` 生成（`config.STORAGE_NS` + `:` + store id）。每个 store 的 `persist` 配置控制持久化哪些 ref。
 
 `src/utils/auth.ts` 已删除——token 完全通过 Pinia 持久化管理。
 
-### 动态图标必须使用 iconMap
-
-`unplugin-vue-components` 仅能解析静态标签形式的图标。动态方式 `<component :is="iconName" />` 会静默失败，必须使用 `src/icons` 导出的 iconMap。
-
-新增侧边栏菜单图标时：EP 图标 → `src/icons/ep.js` 新增条目；RemixIcon → `src/icons/ri.js` 新增条目。
-
 ### Tailwind CSS v4（CSS 优先，无配置文件）
 
-使用 `@tailwindcss/vite` 插件，通过 CSS 的 `@theme` / `@source` 指令配置——**没有 `tailwind.config.js` 和 `postcss.config.js`**。
+使用 `@tailwindcss/vite` 插件，通过 CSS 的 `@theme` / `@utility` 指令配置——**没有 `tailwind.config.js` 和 `postcss.config.js`**。
 
-已禁用 Preflight 以避免与 Element Plus 基础样式冲突——从 `src/styles/tailwind.css` 中省略 preflight 导入即可，无需 corePlugins 配置。
+主题 token 通过 CSS 变量桥接 Vant 设计变量（`--van-*`）到 Tailwind 工具类（`bg-primary`、`text-primary` 等），定义在 `src/styles/tailwind.css`。
 
 ### sass-embedded
 
@@ -70,16 +66,19 @@ Token 和用户状态通过 `pinia-plugin-persistedstate` 持久化，key 使用
 
 ### API 文件结构
 
-每个领域一个文件，放在 `src/api/{domain}.ts`。单文件内按"类型 → API 函数 → 查询键"顺序排列：
+每个领域一个文件，放在 `src/api/{domain}.ts`。单文件内按"类型 → API 函数（→ 查询键，仅当存在时）"顺序排列：
 
-```
-src/api/
-├── auth.ts    # 类型 + fetchCaptcha / fetchToken / fetchUserInfo
-├── menu.ts    # 类型 + fetch* / create* / update* / delete* + menuKeys
-└── role.ts    # 类型 + fetch* / create* / update* / delete* + roleKeys
+```typescript
+// ==================== Types ====================
+export interface LoginPayload { ... }
+export interface UserInfo { ... }
+
+// ==================== API Functions ====================
+export function fetchCaptcha() { ... }
+export function fetchToken(data: LoginPayload) { ... }
 ```
 
-API 函数是**纯异步函数**，对 vue-query 零感知——只负责请求和返回数据，不涉及缓存/失效/重取。具体写法参考现有 `src/api/menu.ts`。
+API 函数是**纯异步函数**，对 vue-query 零感知——只负责请求和返回数据，不涉及缓存/失效/重取。
 
 ### 响应解包
 
@@ -93,35 +92,35 @@ API 函数是**纯异步函数**，对 vue-query 零感知——只负责请求�
 
 ### vue-query 使用约束
 
-| 场景                                          | 用              | 不用                    |
-| --------------------------------------------- | --------------- | ----------------------- |
-| 组件内数据获取                                | `useQuery`      | 裸 axios / 手动 loading |
-| 需要生命周期钩子的写操作                      | `useMutation`   | 裸调用 + try/catch      |
-| 一次性调用（loading 已由 withLoading 接管）   | 直接调 API 函数 | `useMutation`           |
-| Store 中的命令式请求（login、generateRoutes） | 直接调 API 函数 | vue-query               |
+| 场景 | 用 | 不用 |
+| --- | --- | --- |
+| 组件内数据获取 | `useQuery` | 裸 axios / 手动 loading |
+| 需要生命周期钩子的写操作 | `useMutation` | 裸调用 + try/catch |
+| 一次性调用（loading 已由 withLoading 接管） | 直接调 API 函数 | `useMutation` |
+| Store 中的命令式请求（login 等） | 直接调 API 函数 | vue-query |
 
-**useQuery 必须内联写在视图中**，queryKey 和 queryFn 同处可见。不为单一使用者创建 `queryOptions` 工厂或独立查询文件——那会增加跳转且不带来复用价值。
+**useQuery 必须内联写在视图中**，queryKey 和 queryFn 同处可见。不为单一使用者创建 `queryOptions` 工厂或独立查询文件。
 
 **useMutation 仅在确实用到 onMutate / onSuccess / onError / onSettled 时使用**；生命周期内完成副作用（失效缓存、提示、loading 清理），不要在事件处理函数里重复写。
 
 ### 查询键
 
-查询键工厂放在 API 文件末尾，**仅保留实际用于 `invalidateQueries` 的条目**，不为未来需求预建。
+查询键工厂放在对应 API 文件末尾，**仅保留实际用于 `invalidateQueries` 的条目**，不为未来需求预建。
 
 键采用层级前缀结构（通用 → 具体），使失效能按粒度控制：
 
 ```
-['menus']           ← menuKeys.all       失效所有菜单缓存
-['menus', 'tree']   ← menuKeys.trees()   只失效树形数据
+['items']           ← itemKeys.all      失效所有条目缓存
+['items', 'list']   ← itemKeys.list()   只失效列表数据
 ```
 
 ### 缓存失效
 
-写操作成功后通过 `queryClient.invalidateQueries({ queryKey: 对应键 })` 精确失效相关缓存，驱动关联查询自动重取。禁止手动调用 refetch 刷新。
+写操作成功后通过 `queryClient.invalidateQueries({ queryKey: 对应键 })` 精确失效相关缓存。禁止手动调用 refetch。
 
 ### Store 与查询边界
 
-Store 持有跨页面共享的**应用状态**（token、用户信息、路由菜单）；vue-query 管理**服务端数据缓存**。二者不混用：login、generateRoutes 这类一次性命令式操作直接调 API 函数，不进查询缓存。
+Store 持有跨页面共享的**应用状态**（token、用户信息）；vue-query 管理**服务端数据缓存**。二者不混用：login 等一次性命令式操作直接调 API 函数，不进查询缓存。
 
 ## HTTP 层
 
@@ -145,24 +144,24 @@ computed → composables（依赖状态，如 useQuery/useMutation）→ 共享�
 事件处理（按界面区域分组）→ defineExpose
 ```
 
-要点：无状态依赖的 composables（`useQueryClient`、`useStore`）前置；依赖本地 ref 的 `useQuery`/`useMutation` 后置。工厂函数紧邻其初始化的状态声明。不需要分块注释标记——代码结构自然表达分块。
+无状态依赖的 composables（`useQueryClient`、`useStore`）前置；依赖本地 ref 的 `useQuery`/`useMutation` 后置。不需要分块注释标记——代码结构自然表达分块。
 
 ### 注释
 
-**仅在关键交互入口**（打开抽屉、删除确认、切换状态）添加 JSDoc 风格短注释，方便排查时搜索定位。内部辅助函数和工具方法不加注释——函数名应能表达用途。
+仅在关键交互入口（打开弹窗、删除确认、切换状态）添加 JSDoc 风格短注释。内部辅助函数不加注释——函数名表达用途。
 
 ### loading 选择
 
 - 全局 loading 遮罩 → `withLoading(promise, '文案')`
-- 按钮/表单内联 loading → `mutation.isPending`
+- 按钮内联 loading → `mutation.isPending`
 
-二选一，不要同时使用。反馈提示统一走 `@/utils/feedback` 的 `message` / `confirm` 等封装。
+二选一，不要同时使用。反馈提示统一走 `@/utils/feedback`。
 
 ## Mock
 
-Mock 由 `vite.config.ts` 的 `__USE_MOCK__` 构建期变量控制（当前为 true，上线前改为 false）。启用时 `src/mock/index.ts` 动态注册 `axios-mock-adapter` 拦截 `src/utils/http` 实例。
+Mock 由 `vite.config.ts` 的 `__USE_MOCK__` 构建期变量控制：`VITE_APP_USE_MOCK=true` 时启用，默认关闭。在 `.env.development` 中设置该变量可开启开发环境 mock。
 
-登录走完整 API 层（fetchToken → apiPost），mock 在 HTTP 适配层拦截响应，**不是**页面直接设置 mock token。
+启用时 `src/mock/index.ts` 通过 `axios-mock-adapter` 拦截 `src/utils/http` 实例。mock 在 HTTP 适配层拦截，不是页面直接设置 mock token。
 
 ## Git 提交规范
 
