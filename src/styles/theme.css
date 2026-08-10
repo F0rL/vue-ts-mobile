@@ -1,0 +1,16 @@
+/* =============================================
+ * Unified Design Token System
+ * ---------------------------------------------
+ * Single source of truth for all theme values.
+ * - Overrides Element Plus CSS variables (--el-*)
+ * - Drives Tailwind v4 utilities via @theme in tailwind.css
+ * - Available as var(--xxx) in custom styles
+ *
+ * Change a value here → Element Plus components,
+ * Tailwind classes, and custom CSS all update together.
+ * ============================================= */
+
+:root {
+  /* ===== Primary (Brand) ===== */
+  --el-color-primary: #2563eb;
+}

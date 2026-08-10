@@ -1,0 +1,65 @@
+{
+  "name": "admin-template",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "typecheck": "vue-tsc --noEmit --skipLibCheck",
+    "format": "prettier --write \"src/**/*.{vue,ts,css,scss}\"",
+    "format:check": "prettier --check \"src/**/*.{vue,ts,css,scss}\""
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": ">=10.0.0 <11.0.0",
+      "onFail": "error"
+    }
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "@tanstack/vue-query": "^5.101.4",
+    "@tanstack/vue-query-devtools": "^6.1.38",
+    "@vueuse/core": "^14.3.0",
+    "axios": "^1.7.9",
+    "dayjs": "^1.11.21",
+    "echarts": "^6.1.0",
+    "element-plus": "^2.14.3",
+    "node-forge": "^1.4.0",
+    "nprogress": "^0.2.0",
+    "pinia": "^4.0.2",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "vue": "^3.5.34",
+    "vue-router": "^5.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@iconify-json/ep": "^1.2.4",
+    "@iconify-json/ri": "^1.2.10",
+    "@rushstack/eslint-patch": "^1.10.5",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^26.1.1",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "axios-mock-adapter": "^2.1.0",
+    "eslint": "^10.7.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.10.0",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.6",
+    "sass-embedded": "^1.83.4",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0",
+    "typescript-eslint": "^8.65.0",
+    "unplugin-auto-import": "^21.0.0",
+    "unplugin-icons": "^23.0.1",
+    "unplugin-vue-components": "^32.1.0",
+    "vite": "^8.1.3",
+    "vue-eslint-parser": "^10.4.1",
+    "vue-tsc": "^3.3.8"
+  }
+}

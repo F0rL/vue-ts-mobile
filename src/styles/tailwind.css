@@ -1,0 +1,62 @@
+@import 'tailwindcss';
+
+/* =============================================
+ * Tailwind v4 Theme Integration
+ * ---------------------------------------------
+ * Maps design tokens from theme.css to Tailwind
+ * utility classes. Using var() (non-inline)
+ * keeps utilities in sync with Element Plus at
+ * runtime and preserves dark-mode switching.
+ *
+ * theme.css is imported separately in main.js
+ * AFTER element-plus/dist/index.css so its
+ * :root overrides win the CSS cascade.
+ *
+ * Generated utilities:
+ *   bg-primary, text-primary, border-primary ...
+ *   bg-success, text-warning, bg-danger ...
+ *   bg-bg, text-text-primary, border-border ...
+ * ============================================= */
+@theme {
+  /* Primary */
+  --color-primary: var(--el-color-primary);
+  --color-primary-light-9: var(--el-color-primary-light-9);
+
+  /* Text */
+  --color-text-primary: var(--el-text-color-primary);
+  --color-text-secondary: var(--el-text-color-secondary);
+  --color-text-placeholder: var(--el-text-color-placeholder);
+
+  /* Fill */
+  --color-fill-light: var(--el-fill-color-light);
+
+  /* Border */
+  --color-border-lighter: var(--el-border-color-lighter);
+
+  /* Danger */
+  --color-danger: var(--el-color-danger);
+  --color-danger-light-9: var(--el-color-danger-light-9);
+}
+
+/* =============================================
+ * Custom Utilities
+ * ---------------------------------------------
+ * Reusable utility classes that Tailwind's
+ * default set does not cover.
+ * ============================================= */
+
+/* 细滚动条：树形/列表滚动区域复用 */
+@utility scroll-thin {
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--el-border-color-darker);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+}
