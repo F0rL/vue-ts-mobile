@@ -12,7 +12,17 @@ declare module 'vue-router' {
   }
 }
 
+/** 自动加载 src/router/modules 下所有 .ts 路由模块 */
+const autoRoutes: RouteRecordRaw[] = []
+const routeModules = import.meta.glob<{ default: RouteRecordRaw[] }>('./modules/*.ts', {
+  eager: true,
+})
+Object.values(routeModules).forEach(mod => {
+  autoRoutes.push(...mod.default)
+})
+
 export const routes: RouteRecordRaw[] = [
+  ...autoRoutes,
   {
     path: '/:pathMatch(.*)*',
     name: 'CatchAll',
