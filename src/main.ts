@@ -22,10 +22,8 @@ async function bootstrap() {
   app.mount('#app')
 }
 
-import 'element-plus/dist/index.css'
 import './styles/theme.css'
 import './styles/tailwind.css'
 import './styles/index.scss'
-import 'nprogress/nprogress.css'
 
 bootstrap()

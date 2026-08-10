@@ -39,7 +39,7 @@ function handleUnauthorized() {
   userStore.resetToken()
   permissionStore.resetRoutes()
   message.error('登录已过期，请重新登录')
-  router.push('/login').finally(() => {
+  router.push('/error?status=401').finally(() => {
     isRelogging = false
   })
 }

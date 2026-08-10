@@ -4,9 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import Icons from 'unplugin-icons/vite'
-import IconsResolver from 'unplugin-icons/resolver'
+import { VantResolver } from '@vant/auto-import-resolver'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_APP_')
@@ -21,21 +19,12 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       vue(),
       AutoImport({
-        resolvers: [ElementPlusResolver(), IconsResolver({ prefix: 'Icon' })],
-        // imports: ['vue', 'vue-router', 'pinia'],
+        resolvers: [VantResolver()],
         dts: 'src/auto-imports.d.ts',
       }),
       Components({
-        resolvers: [
-          ElementPlusResolver({ importStyle: 'sass' }),
-          IconsResolver({ prefix: 'Icon', enabledCollections: ['ri', 'ep'] }),
-        ],
+        resolvers: [VantResolver()],
         dts: 'src/components.d.ts',
-      }),
-      Icons({
-        compiler: 'vue3',
-        scale: 1,
-        autoInstall: false,
       }),
     ],
     resolve: {

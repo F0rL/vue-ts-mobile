@@ -5,54 +5,48 @@
  * ---------------------------------------------
  * Maps design tokens from theme.css to Tailwind
  * utility classes. Using var() (non-inline)
- * keeps utilities in sync with Element Plus at
- * runtime and preserves dark-mode switching.
+ * keeps utilities in sync with Vant at runtime
+ * and preserves dark-mode switching.
  *
- * theme.css is imported separately in main.js
- * AFTER element-plus/dist/index.css so its
- * :root overrides win the CSS cascade.
+ * theme.css is imported separately in main.ts.
  *
  * Generated utilities:
  *   bg-primary, text-primary, border-primary ...
- *   bg-success, text-warning, bg-danger ...
- *   bg-bg, text-text-primary, border-border ...
+ *   bg-danger, text-danger ...
  * ============================================= */
 @theme {
   /* Primary */
-  --color-primary: var(--el-color-primary);
-  --color-primary-light-9: var(--el-color-primary-light-9);
+  --color-primary: var(--van-primary-color);
+  --color-primary-light-9: var(--van-primary-color);
 
   /* Text */
-  --color-text-primary: var(--el-text-color-primary);
-  --color-text-secondary: var(--el-text-color-secondary);
-  --color-text-placeholder: var(--el-text-color-placeholder);
+  --color-text-primary: var(--van-text-color);
+  --color-text-secondary: var(--van-text-color-weak);
+  --color-text-placeholder: var(--van-gray-5);
 
   /* Fill */
-  --color-fill-light: var(--el-fill-color-light);
+  --color-fill-light: var(--van-background-2);
 
   /* Border */
-  --color-border-lighter: var(--el-border-color-lighter);
+  --color-border-lighter: var(--van-border-color);
 
   /* Danger */
-  --color-danger: var(--el-color-danger);
-  --color-danger-light-9: var(--el-color-danger-light-9);
+  --color-danger: var(--van-danger-color);
+  --color-danger-light-9: var(--van-danger-color);
 }
 
 /* =============================================
  * Custom Utilities
- * ---------------------------------------------
- * Reusable utility classes that Tailwind's
- * default set does not cover.
  * ============================================= */
 
-/* 细滚动条：树形/列表滚动区域复用 */
+/* 细滚动条 */
 @utility scroll-thin {
   &::-webkit-scrollbar {
     width: 4px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: var(--el-border-color-darker);
+    background-color: var(--van-gray-5);
     border-radius: 3px;
   }
 
