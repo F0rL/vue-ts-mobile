@@ -19,14 +19,20 @@ export interface UserInfo {
 
 // ==================== API Functions ====================
 
-export function fetchCaptcha() {
-  return apiGet<{ base64: string; key: string }>('/Auth/GetLoginVerCode')
+export function fetchCaptcha(signal?: AbortSignal) {
+  return apiGet<{ base64: string; key: string }>('/Auth/GetLoginVerCode', { signal })
 }
 
 export function fetchToken(data: LoginPayload) {
   return apiPost<string>('/Auth/GetTokenPC', data)
 }
 
-export function fetchUserInfo() {
-  return apiGet<UserInfo>('/Auth/GetUserInfo')
+export function fetchUserInfo(signal?: AbortSignal) {
+  return apiGet<UserInfo>('/Auth/GetUserInfo', { signal })
+}
+
+// ==================== Query Keys ====================
+
+export const authKeys = {
+  all: ['auth'] as const,
 }

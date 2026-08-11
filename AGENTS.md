@@ -66,26 +66,28 @@ Token 和用户状态通过 `pinia-plugin-persistedstate` 持久化，key 前缀
 
 ### API 文件结构
 
-每个领域一个文件，放在 `src/api/{domain}.ts`。单文件内按"类型 → API 函数（→ 查询键，仅当存在时）"顺序排列：
+每个领域一个文件，放在 `src/api/{domain}.ts`。单文件内按"类型 → API 函数 → 查询键"顺序排列。API 函数是纯异步函数，对 vue-query 零感知，只负责请求和返回数据。
 
-```typescript
-// ==================== Types ====================
-export interface LoginPayload { ... }
-export interface UserInfo { ... }
+**函数命名约定**：
 
-// ==================== API Functions ====================
-export function fetchCaptcha() { ... }
-export function fetchToken(data: LoginPayload) { ... }
+| 前缀 | 用途 | 是否支持 signal | 示例 |
+|---|---|---|---|
+| `fetch*` | 只读查询，可能被 `useQuery` 使用 | ✅ 第二参数 `signal?: AbortSignal` | `fetchUserList` |
+| `create*` / `update*` / `delete*` / `reset*` | 写操作，只被 `useMutation` 或命令式调用 | ❌ 不需要 | `createUser` |
+
+**signal 参数规范**：所有 `fetch*` 函数统一预留 `signal?: AbortSignal` 作为最后一个参数，注入到 axios config 中：
+
+```ts
+export function fetchXxx(params?: XxxParams, signal?: AbortSignal) {
+  return apiGet<XxxItem>('/url', { params, signal })
+}
 ```
-
-API 函数是**纯异步函数**，对 vue-query 零感知——只负责请求和返回数据，不涉及缓存/失效/重取。
 
 ### 响应解包
 
-后端统一返回 `ApiResponse<T>`（`{ flag, msg, total, time, code }`）。解包逻辑集中在 `@/utils/http`：
+后端统一返回 `ApiResponse<T>`（`{ flag, msg, total, time, code }`，定义在 `src/types/global.d.ts`）。解包逻辑集中在 `@/utils/http`：
 
-- `apiGet<T>` — 单实体/树形数据，返回 `msg`（即 `T`）
-- `apiGetList<T>` — 分页列表，返回 `{ items: T[], total }`
+- `apiGet<T>` — 返回 `{ data: T, total: number }`，由 API 函数按需映射
 - `apiPost<T>` — 增删改，返回 `msg`
 
 业务错误（`code !== 0`）由解包层统一处理并 reject，调用方无需重复判断。
@@ -100,6 +102,16 @@ API 函数是**纯异步函数**，对 vue-query 零感知——只负责请求�
 | Store 中的命令式请求（login 等） | 直接调 API 函数 | vue-query |
 
 **useQuery 必须内联写在视图中**，queryKey 和 queryFn 同处可见。不为单一使用者创建 `queryOptions` 工厂或独立查询文件。
+
+**queryFn 必须解构 `{ signal }` 并透传给 `fetch*` 函数**，否则页面卸载时请求不会自动取消：
+
+```ts
+// ✅ 正确
+queryFn: ({ signal }) => fetchUserList({ pageIndex: 1 }, signal)
+
+// ❌ 错误 — signal 未透传，请求无法取消
+queryFn: () => fetchUserList({ pageIndex: 1 })
+```
 
 **useMutation 仅在确实用到 onMutate / onSuccess / onError / onSettled 时使用**；生命周期内完成副作用（失效缓存、提示、loading 清理），不要在事件处理函数里重复写。
 
@@ -132,7 +144,7 @@ Store 持有跨页面共享的**应用状态**（token、用户信息）；vue-q
 └── error.ts        # isSuccess / handleBusinessError / handleNetworkError
 ```
 
-`apiGet`/`apiPost`/`apiGetList` 是绑定默认实例的解包函数。多实例场景使用 `createApiHelpers(新实例)` 工厂生成同款解包函数。
+`apiGet`/`apiPost` 是绑定默认实例的解包函数。多实例场景使用 `createApiHelpers(新实例)` 工厂。
 
 ## 页面代码规范
 

@@ -47,6 +47,8 @@ function handleUnauthorized() {
  *          false — 已内部处理完毕，不 reject（401 跳转中、请求取消）
  */
 export function handleNetworkError(error: any): boolean {
+  // 请求取消（vue-query 组件卸载时自动 abort signal → axios CanceledError）
+  // 静默处理，不弹 toast，不 reject 给业务层
   if (axios.isCancel(error)) return false
 
   const status = error?.response?.status

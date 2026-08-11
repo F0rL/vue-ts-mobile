@@ -11,6 +11,12 @@ export interface LoginByUserIdPayload {
 // ==================== API Functions ====================
 
 /** 通过账号密码获取 token */
-export function fetchTokenByUserId(data: LoginByUserIdPayload) {
-  return apiGet<string>('/WeiXinWork/GetTokenByUserId', { params: data })
+export function fetchTokenByUserId(data: LoginByUserIdPayload, signal?: AbortSignal) {
+  return apiGet<string>('/WeiXinWork/GetTokenByUserId', { params: data, signal })
+}
+
+// ==================== Query Keys ====================
+
+export const weiXinWorkKeys = {
+  all: ['weiXinWork'] as const,
 }

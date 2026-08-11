@@ -23,11 +23,12 @@ http.interceptors.request.use((reqConfig) => {
 http.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (handleNetworkError(error)) return Promise.reject(error)
+    // handleNetworkError 内部决定是否弹 toast（取消静默、401 跳转等）
+    handleNetworkError(error)
     return Promise.reject(error)
   },
 )
 
 // 导出默认 axios 实例 + 预配置的 API 辅助函数
 export default http
-export const { apiGet, apiPost, apiGetList } = createApiHelpers(http)
+export const { apiGet, apiPost } = createApiHelpers(http)

@@ -21,8 +21,9 @@ const submitting = ref(false)
 async function onSubmit() {
   submitting.value = true
   try {
-    userStore.token = await fetchTokenByUserId(form)
-    const info = await fetchUserInfo()
+    const { data: token } = await fetchTokenByUserId(form)
+    userStore.token = token
+    const { data: info } = await fetchUserInfo()
     userStore.userInfo = info
     message.success('登录成功')
     const redirectPath =
