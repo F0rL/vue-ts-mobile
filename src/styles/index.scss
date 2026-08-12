@@ -4,6 +4,11 @@
 // Design tokens (colors, radius, etc.) are
 // defined in src/styles/theme.css as CSS custom
 // properties and are NOT redefined here.
+//
+// PC adaptation: #app is constrained to
+// --app-max-width and centered. Vant fixed
+// components (Tabbar, Popup, etc.) are overridden
+// to match the same width constraint.
 // =============================================
 
 *,
@@ -12,19 +17,63 @@
   box-sizing: border-box;
 }
 
-html,
-body,
-#app {
+html {
   height: 100%;
-  width: 100%;
 }
 
 body {
   margin: 0;
   padding: 0;
+  min-height: 100%;
+  background-color: var(--van-gray-3);
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial,
     sans-serif;
 }
 
+/*
+ * #app 使用 dvh（dynamic viewport height）保证内容少时撑满视口。
+ * dvh 在移动端浏览器地址栏收起/展开时自动重算，避免 100vh 的底部被切问题。
+ * min-height 允许内容超长时自然撑高，滚动由 document 接管：
+ *   - PullRefresh 依赖 document 滚动 → 无需额外配置 scrollEl
+ *   - 键盘弹起时浏览器自动滚动 document 保护焦点输入 → 体验一致
+ */
+#app {
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
+  background-color: var(--app-bg);
+  box-shadow: 0 0 12px rgb(0 0 0 / 5%);
+}
+
+// =============================================
+// Vant fixed-component overrides
+// Constrain fixed-position components (Tabbar,
+// Bottom Popup, ActionSheet) to the same
+// max-width as #app, centered in the viewport.
+// Side popups attach to the left/right edges
+// of the constrained area.
+// Full-screen modals (Overlay, ImagePreview,
+// Toast, Dialog) are intentionally excluded.
+// =============================================
+
+.van-tabbar--fixed,
+.van-popup--bottom,
+.van-action-sheet {
+  left: 50%;
+  right: auto;
+  max-width: var(--app-max-width);
+  transform: translateX(-50%);
+}
+
+.van-popup--left {
+  left: calc(50% - var(--app-max-width) / 2);
+  transform: none;
+}
+
+.van-popup--right {
+  left: calc(50% + var(--app-max-width) / 2);
+  transform: none;
+}

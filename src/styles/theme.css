@@ -13,4 +13,7 @@
 :root {
   /* ===== Primary (Brand) ===== */
   --van-primary-color: #2563eb;
+  /* ===== Layout ===== */
+  --app-max-width: 500px;
+  --app-bg: #f3f8ff;
 }
